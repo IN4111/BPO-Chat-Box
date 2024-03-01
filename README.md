@@ -6,8 +6,10 @@ Place the Servlet Folder in the following location
 > ```
 > .
 > ├── Apache-Tomcat
->     ├── Lib
+>     ├── lib
 >     │   └── servlet-api.jar
+>     ├── conf
+>     │   └── server.xml
 >     └── webapps
 >         └── XpertBPOSolutions
 >             └── WEB-INF
@@ -29,4 +31,15 @@ Make sure that ```$JAVA_HOME``` variable has alsready set and Run the server usi
 ## 4..Hosting
 After compiling Servlet class and running apache server locate ```http://localhost:8888/XpertBPOSolutions/``` to locate ```index.html``` home page
 ## 5..Change Port Number
-To change the port number open server.xml file in ```Apache-Tomcat/bin/server.xml``` and change the port number given as ```**port=8888**```
+To change the port number open server.xml file in ```Apache-Tomcat/conf/server.xml``` and change the port number given as ```**port=8888**```
+```**
+<Connector port="8888" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               redirectPort="8443"
+               maxParameterCount="1000"
+               />
+**
+```
+## 6..Server shutdown:
+To Run the server use the below command
+```./Apache-Tomcat/bin/shutdown.sh```
