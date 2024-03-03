@@ -26,6 +26,9 @@ Ensure the Servlet folder is placed in the following directory structure:
 │           ├── script.js
 │           └── style.css  
 ```
+## Project Demo:
+
+https://github.com/IN4111/BPO-Chat-Box/assets/115919438/1a228887-73d1-4863-9c13-1a643d496418
 
 ## Compiling the Code:
 
