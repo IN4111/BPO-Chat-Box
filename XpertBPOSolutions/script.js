@@ -1,123 +1,109 @@
-const subButt=document.querySelector('#submit');
-const chat=document.querySelector('#chat');
-const result=document.querySelector('#result');
-const usr_name=document.querySelector("#usr_name");
-const adm=document.querySelector('#adm');
+const subButt = document.querySelector('#submit');
+const chat = document.querySelector('#chat');
+const result = document.querySelector('#result');
+const usr_name = document.querySelector("#usr_name");
+const adm = document.querySelector('#adm');
 
-
-eval=(val)=>{
-    if(usr_name.value==''){
-        result.innerHTML+="<br>User Name Not Set";
-    }else{
-        if(chat.value=='')
-            result.innerHTML+="<br>"+usr_name.value+":"+"<br>no inputs";
+// Function to handle user input evaluation
+const evaluateInput = () => {
+    if (usr_name.value === '') {
+        result.innerHTML += "<br>User Name Not Set";
+    } else {
+        if (chat.value === '')
+            result.innerHTML += "<br>" + usr_name.value + ":<br>No input";
         else
-            req(val);
+            makeRequest(chat.value);
     }
 };
 
-req=(message)=>{
+// Function to make XMLHttpRequest
+const makeRequest = (message) => {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', "http://localhost:8888/XpertBPOSolutions/bposervlet?chat="+message, true);
-    xhr.responseType = 'document';  
+    xhr.open('GET', `http://localhost:8888/XpertBPOSolutions/bposervlet?chat=${encodeURIComponent(message)}`, true);
     xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4 && xhr.status === 200) {
-            var a=xhr.responseXML.getElementsByTagName("result");
-            result.innerHTML+="<br>XpertBPOSolutions:<br>"+a[0].textContent;
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                var responseText = xhr.responseText;
+                try {
+                    var jsonResponse = JSON.parse(responseText);
+                    if (jsonResponse.hasOwnProperty("response")) {
+                        result.innerHTML += `<br>alexa customer support:<br>${jsonResponse.response}`;
+                    } else {
+                        result.innerHTML += `<br>Error: ${jsonResponse.error}`;
+                    }
+                } catch (e) {
+                    result.innerHTML += "<br>Error parsing JSON response: " + e.message;
+                }
+            } else {
+                result.innerHTML += "<br>Error: " + xhr.status;
+            }
         }
     };
     xhr.send();
 };
 
-var Chat = {};
+// Function to handle WebSocket initialization
+const initializeWebSocket = () => {
+    var Chat = {};
+    Chat.socket = null;
 
-Chat.socket = null;
-
-Chat.connect = (function(host) {
     if ('WebSocket' in window) {
-        Chat.socket = new WebSocket(host);
+        Chat.socket = new WebSocket(getWebSocketURL());
     } else if ('MozWebSocket' in window) {
-        Chat.socket = new MozWebSocket(host);
+        Chat.socket = new MozWebSocket(getWebSocketURL());
     } else {
-        Console.log('Error: WebSocket is not supported by this browser.');
+        console.log('Error: WebSocket is not supported by this browser.');
         return;
     }
 
     Chat.socket.onopen = function () {
-        Console.log('Connection Established with the Server');
-        subButt.addEventListener("click",function() {
-            if(usr_name.value==''){
-                result.innerHTML+="<br>User Name Not Set";
-                return;
-            }
-            if(chat.value==''){
-                result.innerHTML+="<br>"+usr_name.value+":<br>No input";
-                return;
-            }
-                Chat.sendMessage(chat.value);
-        });
+        console.log('Connection Established with the Server');
+        subButt.addEventListener("click", evaluateInput);
     };
 
     Chat.socket.onmessage = function (message) {
-        try{
-            data=message.data.replaceAll("&quot;",'"');
-            index=data.indexOf(":")+2;
-            json=JSON.parse(data.substring(index));
-            Console.log(json.usr+":<br>"+json.mess);
-        }catch(guest){
-            Console.log("A new user has Joined.");
+        try {
+            var data = message.data.replaceAll("&quot;", '"');
+            var index = data.indexOf(":") + 2;
+            var json = JSON.parse(data.substring(index));
+            console.log(json.usr + ":<br>" + json.mess);
+        } catch (guest) {
+            console.log("A new user has Joined.");
         }
     };
-});
-
-Chat.initialize = function() {
-    if (window.location.protocol == 'http:') {
-        Chat.connect('ws://' + window.location.host + '/examples/websocket/chat');
-    } else {
-        Chat.connect('wss://' + window.location.host + '/examples/websocket/chat');
-    }
 };
 
-Chat.sendMessage = (function(message) {
-    if (message != '') {
-        jsonData={"mess":message,"usr":usr_name.value};
-        Chat.socket.send(JSON.stringify(jsonData));
-        chat.value="";
-    }
+// Function to get WebSocket URL based on the protocol
+const getWebSocketURL = () => {
+    return (window.location.protocol == 'http:') ? 'ws://' + window.location.host + '/examples/websocket/chat' :
+        'wss://' + window.location.host + '/examples/websocket/chat';
+};
+
+// Event listener for the admin button
+adm.addEventListener("click", (event) => {
+    event.target.disabled = true;
+    usr_name.value = "admin";
+    usr_name.disabled = true;
 });
 
-var Console = {};
-
-Console.log = (function(message) {
-    var p = document.createElement('p');
-    p.innerHTML = message;
-    result.appendChild(p);
+// Event listener for the submit button
+document.querySelector("button").addEventListener("click", () => {
+    if (usr_name.value !== '')
+        usr_name.disabled = true;
+    for (var i = 1; i <= 7; i++) document.getElementById("butt_" + i).disabled = true;
 });
 
-Chat.initialize();
+// Event listeners for predefined buttons
+for (var i = 1; i <= 7; i++) {
+    document.getElementById("butt_" + i).addEventListener("click", (event) => {
+        if (usr_name.value === '') {
+            result.innerHTML += "<br>User Name Not Set";
+        } else {
+            usr_name.disabled = true;
+            makeRequest(event.target.value);
+        }
+    });
+}
 
-
-adm.addEventListener("click",(event)=>{
-    event.target.disabled=true;
-    usr_name.value="XpertBPOSolutions admin";
-    usr_name.disabled=true;
-    }
-);
-
-document.querySelector("button").addEventListener("click",()=>{
-    if(usr_name.value!='')
-        usr_name.disabled=true;
-        for(var i=1;i<=6;i++)document.getElementById("butt_"+i).disabled=true;
-    }
-);
-
-for(var i=1;i<=6;i++)
-    document.getElementById("butt_"+i).addEventListener("click",(event)=>{
-        if(usr_name.value=='')
-            result.innerHTML+="<br>User Name Not Set";
-        else {
-            usr_name.disabled=true;
-            req(event.target.value);
-         }
-    }
-);
+// Initialize WebSocket connection
+initializeWebSocket();
