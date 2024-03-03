@@ -15,7 +15,7 @@ public class BPOServlet extends HttpServlet {
         PrintWriter out = response.getWriter();
         
         // Create a JSON object based on the chat parameter
-        String jsonResponse = "{ \"response\": \"\" }";
+        String jsonResponse = "{ \"response\": \" invalid query \" }";
         switch (chat) {
             case "/q:1":
                 jsonResponse = "{ \"response\": \"We offer fine quality and customized products for your needs.\" }";
@@ -45,3 +45,4 @@ public class BPOServlet extends HttpServlet {
         out.println(jsonResponse);
     }
 }
+
