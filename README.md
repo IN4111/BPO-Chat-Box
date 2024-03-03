@@ -1,6 +1,6 @@
 ---
 
-# BPO Chat Box with Java, Tomcat, Servlet, and Websocket
+# BPO Chat Box with Java, Tomcat and Java Servlet
 
 This project comprises a web application with a front-end designed by [Binary-Shade](https://github.com/Binary-Shade) and a back-end developed by [IN4111](https://github.com/IN4111).
 
